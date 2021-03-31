@@ -115,8 +115,23 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        arguments = args.split()
-        dictionary = {}
+        arguments = args.split(' ')
+        new_dict = {}
+        value = ""
+
+        for i in range(1, len(arguments)):
+            parameter = arguments[i].split('=')
+            key = parameter[0]
+            s = parameter[1]
+            if s[0] != '"':
+                if '.' in s:
+                    value = float(s)
+                else:
+                    value = int(s)
+            else:
+                value1 = s.replace('_', ' ')
+                value = value1.replace('"', '')
+            new_dict.update({key: value})
 
         if not args:
             print("** class name missing **")
@@ -125,32 +140,13 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
 
-        for i, item in enumerate(arguments):
-            if i == 0:
-                continue
-            temp = item.split("=")
-            key = temp[0]
-            value = temp[1]
-            if '"' in value:
-                value = value[1:-1].replace('"', '\"')
-                value = value.replace("_", " ")
-            else:
-                try:
-                    value = int(value)
-                except ValueError:
-                    try:
-                        value = float(value)
-                    except ValueError:
-                        value = value
-            dictionary.update({key: value})
+        if (len(arguments) >= 1):
+            new_instance = HBNBCommand.classes[arguments[0]](**new_dict)
+        else:
+            new_instance = HBNBCommand.classes[arguments[0]]()
 
-        new_instance = HBNBCommand.classes[arguments[0]]()
-        for key, value in dictionary.items():
-            new_instance.__dict__[key] = value
-
-        storage.new(new_instance)
-        storage.save()
         print(new_instance.id)
+        new_instance.save()
 
     def help_create(self):
         """ Help information for the create method """
