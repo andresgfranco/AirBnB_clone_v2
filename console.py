@@ -118,6 +118,13 @@ class HBNBCommand(cmd.Cmd):
         arguments = args.split()
         dictionary = {}
 
+        if not args:
+            print("** class name missing **")
+            return
+        elif arguments[0] not in HBNBCommand.classes:
+            print("** class doesn't exist **")
+            return
+
         for i, item in enumerate(arguments):
             if i == 0:
                 continue
@@ -136,17 +143,14 @@ class HBNBCommand(cmd.Cmd):
                     except ValueError:
                         value = value
             dictionary.update({key: value})
-        if not args:
-            print("** class name missing **")
-            return
-        elif arguments[0] not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
+
         new_instance = HBNBCommand.classes[arguments[0]]()
         for key, value in dictionary.items():
             new_instance.__dict__[key] = value
-        print(new_instance.id)
+
+        storage.new(new_instance)
         storage.save()
+        print(new_instance.id)
 
     def help_create(self):
         """ Help information for the create method """
