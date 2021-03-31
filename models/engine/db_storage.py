@@ -18,9 +18,9 @@ class DBStorage:
         database_name = getenv("HBNB_MYSQL_DB")
         env_variable = getenv("HBNB_ENV")
 
-        db = "mysql+mysqldb://{}:{}@{}:3306/{}".
-        format(mysql_username, mysql_password, mysql_host,
-               database_name)
+        db = "mysql+mysqldb://{}:{}@{}:3306/{}".\
+            format(mysql_username, mysql_password, mysql_host,
+                   database_name)
         self.__engine = create_engine(db, pool_pre_ping=True)
 
         if env_variable == "test":
@@ -31,7 +31,7 @@ class DBStorage:
         depending of the class"""
         classes = ["State", "City", "User", "Place", "Review", "amenity"]
         dict_all = {}
-        if cls is in classes:
+        if cls in classes:
             query_result = self.__session.query(cls)
             for row in query_result:
                 dict_all[row.__class__.__name__ + "." + row.id] = row
@@ -55,7 +55,7 @@ class DBStorage:
         if obj is not None:
             self.__session.delete(obj)
 
-    defl reload(self):
+    def reload(self):
         """create all tables in data bases"""
         Base.metadata.create_all(self.__engine)
         session = scoped_Session(sessionmaker(bind=self.__engine,
