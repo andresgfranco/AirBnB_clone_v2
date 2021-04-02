@@ -1,7 +1,8 @@
-from models.review import Review
-import json
-i  # !/usr/bin/python3
+#!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
+import json
+
+from models.review import Review
 
 
 class FileStorage:
