@@ -1,6 +1,7 @@
-#!/usr/bin/python3
-"""This module defines a class to manage file storage for hbnb clone"""
+from models.review import Review
 import json
+i  # !/usr/bin/python3
+"""This module defines a class to manage file storage for hbnb clone"""
 
 
 class FileStorage:
@@ -13,12 +14,13 @@ class FileStorage:
         if cls:
             new_dict = dict()
 
-            for key, value in self.__objects.items():
-                if value.__class__ == cls:
-                    new_dict[key] = value
+            for key, obj in self.__objects.items():
+                if obj.__class__ == cls:
+                    new_dict[key] = obj
+
             return new_dict
 
-        return (FileStorage.__objects)
+        return FileStorage.__objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -33,23 +35,14 @@ class FileStorage:
                 temp[key] = val.to_dict()
             json.dump(temp, f)
 
-    def delete(self, obj=None):
-        """ to delete obj from __objects if it’s inside """
-        if obj:
-            key = "{}.{}".format(type(obj).__name__, obj.id)
-            if key in self.__objects:
-                del self.__objects[key]
-            self.save()
-
     def reload(self):
-        """Loads storage dictionary from file"""
+        """Load storage dictionary from file."""
         from models.base_model import BaseModel
         from models.user import User
         from models.place import Place
         from models.state import State
         from models.city import City
         from models.amenity import Amenity
-        from models.review import Review
 
         classes = {
             'BaseModel': BaseModel, 'User': User, 'Place': Place,
@@ -64,3 +57,18 @@ class FileStorage:
                     self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
+
+    def delete(self, obj=None):
+        """Deletes obj from __objects if it's inside"""
+        if obj:
+            """getting class.id"""
+            key = "{}.{}".format(type(obj).__name__, obj.id)
+
+            """if exist in dictionary, then delete and save."""
+            if self.__objects[key]:
+                del self.__objects[key]
+                self.save()
+
+    def close(self):
+        """close"""
+        reload()
