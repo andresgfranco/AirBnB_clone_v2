@@ -21,6 +21,7 @@ def do_pack():
     else:
         return None
 
+
 def do_deploy(archive_path):
     """Function that distributes an archive to a server"""
 
@@ -45,6 +46,7 @@ def do_deploy(archive_path):
         return True
     except:
         return False
+
 
 def deploy():
     """ Function that call do_pack and do_deply for full deployment """
