@@ -46,5 +46,13 @@ def do_deploy(archive_path):
     except:
         return False
 
+def deploy():
+    """ Function that call do_pack and do_deply for full deployment """
+    filepath = do_pack()
+    if filepath is None:
+        return False
+    value = do_deploy(filepath)
+    return value
+
 if __name__ == "__main__":
     do_pack()
