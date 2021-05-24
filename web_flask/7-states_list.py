@@ -1,26 +1,25 @@
 #!/usr/bin/python3
-"""Module for script that starts a Flask web application"""
+"""List all states Module"""
 
-from flask import Flask, render_template
 from models import storage
 from models.state import State
+from flask import Flask, render_template
+
 app = Flask(__name__)
-app.jinja_env.trim_blocks = True
-app.jinja_env.lstrip_blocks = True
+app.url_map.strict_slashes = False
 
 
-@app.route('/states_list', strict_slashes=False)
+@app.route('/states_list')
 def states_list():
-    """Function that displays an HTML"""
-    states = storage.all(State).values()
-    return render_template("7-states_list.html", states=states)
+    """display a HTML the States"""
+    all_states = list(storage.all(State).values())
+    return (render_template('7-states_list.html', all_states=all_states))
 
 
 @app.teardown_appcontext
-def teardown_database():
-    """Function that closes storage"""
+def teardown(self):
+    """function that call close methofd"""
     storage.close()
 
-
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port="5000")
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

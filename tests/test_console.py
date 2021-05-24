@@ -1,67 +1,102 @@
 #!/usr/bin/python3
-"""Unittest module for console"""
-import unittest
-import cmd
-import os
-import pep8
-import models
-from unittest.mock import patch
-from io import StringIO
+""" . """
+from models.engine.file_storage import FileStorage
+from models.base_model import BaseModel
+from models.__init__ import storage
 from console import HBNBCommand
-import json
+from unittest.mock import patch
+from models.amenity import Amenity
+from models.review import Review
+from models.place import Place
+from models.state import State
+from models.city import City
+from models.user import User
+from io import StringIO
+import MySQLdb
+import console
+import unittest
+import pep8
+import sys
+import os
 
-run = os.system
 
-
-class TestHBNBCommand(unittest.TestCase):
-    """Class to test console commands"""
-
-    def test_docstring(self):
-        """Checking docstring for all methods"""
-        self.assertIsNotNone(HBNBCommand.__doc__)
-        self.assertIsNotNone(HBNBCommand.emptyline.__doc__)
-        self.assertIsNotNone(HBNBCOmmand.do_quit.__doc__)
-        self.assertIsNotNone(HBNBCOmmand.do_EOF.__doc__)
-        self.assertIsNotNone(HBNBCOmmand.do_create.__doc__)
-        self.assertIsNotNone(HBNBCOmmand.do_show.__doc__)
-        self.assertIsNotNone(HBNBCOmmand.do_destroy.__doc__)
-        self.assertIsNotNone(HBNBCOmmand.do_all.__doc__)
-        self.assertIsNotNone(HBNBCOmmand.do_update.__doc__)
-
+class TestPep8B(unittest.TestCase):
+    """ Check for pep8 validation. """
     def test_pep8(self):
-        """Checking pep8 style"""
-        pep8style = pep8.StyleGUide(quite=True)
-        result = pep8style.check_files(["console.py"])
-        self.assertEqual(result.total_errors, 0)
+        """ test base and test_base for pep8 conformance """
+        style = pep8.StyleGuide(quiet=True)
+        file1 = 'console.py'
+        file2 = 'tests/test_console.py'
+        result = style.check_files([file1, file2])
+        self.assertEqual(result.total_errors, 0,
+                         "Found code style errors (and warning).")
 
-    def test_first_create(self):
-        """First create test"""
-        no_stdout = " > /dev/null 2>&1"
-        run("rm file.json " + no_stdout)
-        run("echo 'create State' | ./console.py" + no_stdout)
-        run("echo 'all' | ./console.py" + no_stdout)
-        with open("file.json", 'r') as f:
-            temp = json.load(f)
-        self.assertTrue(temp)
 
-    def test_second_create(self):
-        """ create tests """
-        no_stdout = " > /dev/null 2>&1"
-        run("rm file.json " + no_stdout)
-        run('echo create State name="California" | ./console.py' + no_stdout)
-        run("echo 'all' | ./console.py" + no_stdout)
-        with open("file.json", 'r') as f:
-            temp = json.load(f)
-        self.assertTrue(temp)
+class TestDocsB(unittest.TestCase):
+    """ Check for documentation. """
+    def test_module_doc(self):
+        """ check for module documentation """
+        self.assertTrue(len(console.__doc__) > 0)
 
-    def test_third_create(self):
-        """ create tests """
-        no_stdout = " > /dev/null 2>&1"
-        run("rm file.json " + no_stdout)
-        command = 'echo create City state_id="1" name="San_Francisco" '
-        command = command + '| ./console.py '
-        run(command + no_stdout)
-        run("echo 'all' | ./console.py" + no_stdout)
-        with open("file.json", 'r') as f:
-            temp = json.load(f)
-        self.assertTrue(temp)
+    def test_class_doc(self):
+        """ check for documentation """
+        self.assertTrue(len(HBNBCommand.__doc__) > 0)
+
+    def test_method_docs(self):
+        """ check for method documentation """
+        for func in dir(HBNBCommand):
+            self.assertTrue(len(func.__doc__) > 0)
+
+
+class TestConsole(unittest.TestCase):
+    """ Check for functionaly of Console. """
+    def setUp(self):
+        """Setting Up """
+        self.console_o = HBNBCommand()
+
+    def tearDown(self):
+        """Cleaning up after each test. """
+        pass
+
+    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') == 'db', 'for databases')
+    def test_create(self):
+        """ . """
+        with patch("sys.stdout", new=StringIO()) as out:
+            self.console_o.onecmd("create User")
+            lenn = len(out.getvalue())
+            self.assertTrue(lenn > 0)
+        with patch("sys.stdout", new=StringIO()) as out:
+            self.console_o.onecmd("create Lauca")
+            self.assertEqual("** class doesn't exist **\n", out.getvalue())
+        with patch("sys.stdout", new=StringIO()) as out:
+            self.console_o.onecmd("create")
+            self.assertEqual("** class name missing **\n", out.getvalue())
+        with patch("sys.stdout", new=StringIO()) as out:
+            self.console_o.onecmd("all State")
+            lenn = len(out.getvalue())
+            self.assertTrue(lenn > 0)
+
+    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', 'for file')
+    def test_create(self):
+        """ . """
+        with patch("sys.stdout", new=StringIO()) as out:
+            self.console_o.onecmd("create User")
+            lenn = len(out.getvalue())
+            self.assertTrue(lenn > 0)
+        with patch("sys.stdout", new=StringIO()) as out:
+            self.console_o.onecmd("create Lauca")
+            self.assertEqual("** class doesn't exist **\n", out.getvalue())
+        with patch("sys.stdout", new=StringIO()) as out:
+            self.console_o.onecmd("create")
+            self.assertEqual("** class name missing **\n", out.getvalue())
+        with patch("sys.stdout", new=StringIO()) as out:
+            self.console_o.onecmd("all State")
+            lenn = len(out.getvalue())
+            self.assertTrue(lenn > 0)
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+# python3 -m unittest discover tests
+# python3 -m unittest tests/test_models/test_base_model.py

@@ -1,50 +1,34 @@
 #!/usr/bin/python3
-"""Fabric script that generates a .tgz archive from
-the contents of the web_Static folder"""
-from fabric.api import *
-from datetime import datetime
+"""Deploy archive"""
+from fabric.contrib import files
+from fabric.api import env, put, run
 import os
 
-env.hosts = ["34.74.115.197", "54.87.144.17"]
+env.hosts = ['34.75.8.225', '54.91.28.2']
 
-
-def do_pack():
-    """Function that creates
-    a .tgz file"""
-
-    filename = "versions/web_static_{}.tgz"
-    filename = filename.format(datetime.now().strftime("%Y%m%d%H%M%S"))
-    local("mkdir -p versions")
-    create = local("tar -cvzf {} web_static".format(filename))
-    if create.succeeded:
-        return filename
-    else:
-        return None
 
 def do_deploy(archive_path):
-    """Function that distributes an archive to a server"""
-
+    """do_deploy
+    Args:
+        archive_path
+    """
     if not os.path.exists(archive_path):
         return False
 
-    destdir = "/data/web_static/releases/"
-    aux = archive_path.split('/')[1]
-    filename = aux.split('.')[0]
-    destfile = destdir + filename
+    data_path = '/data/web_static/releases/'
+    tmp = archive_path.split('.')[0]
+    name = tmp.split('/')[1]
+    dest = data_path + name
 
     try:
-        put(archive_path, "/tmp")
-        run('mkdir -p {}'.format(destfile))
-        run('tar -xzf /tmp/{}.tgz -C {}'.format(filename, destfile))
-        run('rm -f /tmp/{}.tgz'.format(filename))
-        run('mv {}/web_static/* {}/'.format(destfile, destfile))
-        run('rm -rf {}/web_static/*'.format(destfile))
+        put(archive_path, '/tmp')
+        run('mkdir -p {}'.format(dest))
+        run('tar -xzf /tmp/{}.tgz -C {}'.format(name, dest))
+        run('rm -f /tmp/{}.tgz'.format(name))
+        run('mv {}/web_static/* {}/'.format(dest, dest))
+        run('rm -rf {}/web_static'.format(dest))
         run('rm -rf /data/web_static/current')
-        run('ln -s {} /data/web_static/current'.format(destfile))
-        print("New version deployed!")
+        run('ln -s {} /data/web_static/current'.format(dest))
         return True
     except:
         return False
-
-if __name__ == "__main__":
-    do_pack()
